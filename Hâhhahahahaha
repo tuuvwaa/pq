@@ -37,10 +37,10 @@ Tab:AddButton({
        loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/3b2169cf53bc6104dabe8e19562e5cc2.lua"))()
   	end    
 })
-local isScriptEnabled = false -- Biến trạng thái để theo dõi script đang bật hay tắt
+local isScriptEnabled = false -- Trạng thái script
 
 Tab:AddToggle({
-    Name = "Auto Chest",
+    Name = "Bật/Tắt Chest",
     Default = false,
     Callback = function(state)
         isScriptEnabled = state
@@ -48,8 +48,8 @@ Tab:AddToggle({
             print("Script đã được bật.")
             loadstring(game:HttpGet("https://raw.githubusercontent.com/AnhDzaiScript/AutoChest/refs/heads/main/AutoChestTuanAnhIOS.Lua"))()
         else
-            print("Script đã được tắt.")
-            -- Nếu script có cơ chế dừng thì thêm mã dừng ở đây (nếu không có thì có thể reset nhân vật hoặc reload game để ngừng script)
+            print("Script đã được tắt. Đang reset nhân vật để ngắt script...")
+            game:GetService("Players").LocalPlayer.Character:BreakJoints() -- Reset nhân vật để ngắt script
         end
     end
 })
