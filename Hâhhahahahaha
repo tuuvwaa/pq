@@ -38,18 +38,39 @@ Tab:AddButton({
   	end    
 })
 local isScriptEnabled = false -- Trạng thái script
+local runningConnections = {} -- Lưu các kết nối để ngắt khi cần
 
 Tab:AddToggle({
-    Name = "Bật/Tắt Chest",
+    Name = "Bật/Tắt Chest Hub",
     Default = false,
     Callback = function(state)
         isScriptEnabled = state
+
         if isScriptEnabled then
             print("Script đã được bật.")
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/AnhDzaiScript/AutoChest/refs/heads/main/AutoChestTuanAnhIOS.Lua"))()
+            task.spawn(function()
+                local success, errorMsg = pcall(function()
+                    local redzScript = loadstring(game:HttpGet("https://raw.githubusercontent.com/AnhDzaiScript/AutoChest/refs/heads/main/AutoChestTuanAnhIOS.Lua"))()
+                    table.insert(runningConnections, redzScript) -- Lưu kết nối để tắt sau này
+                end)
+                if not success then
+                    warn("Lỗi khi tải script: " .. errorMsg)
+                end
+            end)
         else
-            print("Script đã được tắt. Đang reset nhân vật để ngắt script...")
-            game:GetService("Players").LocalPlayer.Character:BreakJoints() -- Reset nhân vật để ngắt script
+            print("Script đã được tắt.")
+
+            -- Ngắt mọi kết nối đã lưu để dừng script
+            for _, connection in ipairs(runningConnections) do
+                if typeof(connection) == "RBXScriptConnection" then
+                    connection:Disconnect()
+                elseif typeof(connection) == "Instance" then
+                    connection:Destroy()
+                end
+            end
+
+            -- Xóa danh sách kết nối sau khi đã dừng
+            table.clear(runningConnections)
         end
     end
 })
